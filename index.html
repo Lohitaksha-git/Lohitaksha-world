@@ -70,18 +70,9 @@
   .reveal{opacity:0; transform:translateY(28px) scale(.98); filter:blur(2px)}
   .reveal.visible{opacity:1; transform:none; filter:none; transition:all 900ms cubic-bezier(.2,.7,.2,1)}
 
-  /* Toggle details with smooth height */
-  .details{max-height:0; overflow:hidden; opacity:.0; transition: max-height .65s ease, opacity .45s ease .1s}
-  .details.open{opacity:1}
-  .btn{
-    --shine: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
-    display:inline-flex; align-items:center; gap:.5rem; font-weight:600; font-size:.9rem; letter-spacing:.02em;
-    padding:.55rem 1rem; border-radius:999px; border:1px solid var(--stroke); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); color:var(--text);
-    position:relative; overflow:hidden; cursor:pointer; transition:transform .2s ease, border-color .2s ease;
-  }
-  .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.25)}
-  .btn::after{content:""; position:absolute; inset:0; background:var(--shine); transform:translateX(-120%); transition:transform .9s ease}
-  .btn:hover::after{transform:translateX(120%)}
+  /* Make details visible by default */
+  .details{max-height:initial; overflow:initial; opacity:1; transition: none;}
+  .btn{ display:none; }
 
   /* Skill rings */
   .skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
@@ -204,7 +195,6 @@
         <article class="card reveal" data-target="d1">
           <h3>Master’s Project — Phase I</h3>
           <div class="meta">Investigating Screened Coulomb Potentials & Confined Hydrogen Atom • Aug–Dec 2024 • 5 months • Guide: Prof. Kalidas Sen (UoH)</div>
-          <button class="btn" data-toggle="d1">View details</button>
           <div class="details" id="d1">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Conducted an in-depth literature survey on the theoretical treatment of screened Coulomb potentials in multi‑electron systems and confined hydrogen atoms.</li>
@@ -218,7 +208,6 @@
         <article class="card reveal" data-target="d2">
           <h3>Master’s Project — Phase II</h3>
           <div class="meta">Plasma & Spatially Confined Hydrogen Atom • Dec 2024–Mar 2025 • 4 months • Guide: Prof. Kalidas Sen (UoH)</div>
-          <button class="btn" data-toggle="d2">View details</button>
           <div class="details" id="d2">
             <p style="margin:1rem 0 .5rem">Focus: theoretical and computational investigation of confined hydrogen subjected to screened Coulomb potentials, quantifying how confinement and environmental screening shape the electronic structure and information content.</p>
             <ol style="margin-left:1.1rem; line-height:1.5">
@@ -232,7 +221,6 @@
         <article class="card reveal" data-target="d3">
           <h3>Collaborative Summer Project — Eicosanoids & Bio‑signalling</h3>
           <div class="meta">Apr–Aug 2021 • Guide: Prof. Reddanna Pallu (UoH)</div>
-          <button class="btn" data-toggle="d3">View details</button>
           <div class="details" id="d3">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Mapped biochemical pathways of eicosanoids governing inflammation, immunity, and cellular communication.</li>
@@ -245,7 +233,6 @@
         <article class="card reveal" data-target="d4">
           <h3>Review Article — Eicosanoid Signalling in Neuroinflammation</h3>
           <div class="meta">May 2022–Jan 2023 • Published: European Journal of Pharmacology (May 2024) • DOI: 10.1016/j.ejphar.2024.176694 • Guide: Prof. Reddanna Pallu</div>
-          <button class="btn" data-toggle="d4">View details</button>
           <div class="details" id="d4">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Led the manuscript examining biochemical mechanisms and therapeutic potential of eicosanoid signalling in Alzheimer’s‑related neuroinflammation.</li>
@@ -257,7 +244,6 @@
         <article class="card reveal" data-target="d5">
           <h3>Summer Internship — Understanding Bio‑signalling Pathways</h3>
           <div class="meta">May–Jul 2022 • Guide: Late Prof. Lakshmipati (Kakatiya University)</div>
-          <button class="btn" data-toggle="d5">View details</button>
           <div class="details" id="d5">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Two‑month intensive study of molecular signalling mechanisms and cellular homeostasis.</li>
@@ -279,7 +265,6 @@
       <article class="card reveal" data-target="s1">
         <h3>Python & Data Science</h3>
         <div class="meta">Python programming, NumPy, Pandas, Matplotlib, Seaborn</div>
-        <button class="btn" data-toggle="s1">View Details</button>
         <div class="details" id="s1">
           <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
             <li>Proficient in Python programming, data structures, and program architecture.</li>
@@ -295,7 +280,6 @@
       <article class="card reveal" data-target="s2">
         <h3>Machine Learning Expertise</h3>
         <div class="meta">Supervised & Unsupervised Learning, Cross-validation, Hyperparameter tuning</div>
-        <button class="btn" data-toggle="s2">View Details</button>
         <div class="details" id="s2">
           <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
             <li>Strong grasp of Supervised & Unsupervised Learning algorithms.</li>
@@ -311,7 +295,6 @@
       <article class="card reveal" data-target="s3">
         <h3>Leadership & Communication</h3>
         <div class="meta">Research Leadership, Interdisciplinary Collaboration, Podcasting</div>
-        <button class="btn" data-toggle="s3">View Details</button>
         <div class="details" id="s3">
           <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
             <li>Led a team in publishing a peer-reviewed research article in Elsevier (2024).</li>
@@ -326,7 +309,6 @@
       <article class="card reveal" data-target="s4">
         <h3>Research & Presentation</h3>
         <div class="meta">Scientific Communication, Novel Model Development, Therapeutic Strategy</div>
-        <button class="btn" data-toggle="s4">View Details</button>
         <div class="details" id="s4">
           <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
             <li>Presented Alzheimer’s disease research to Prof. George Perry, UT.</li>
@@ -350,7 +332,6 @@
         <article class="card reveal" data-target="a1">
           <h3>Master’s Research Thesis – Published</h3>
           <div class="meta">Insights into Quantum Confinement Effects</div>
-          <button class="btn" data-toggle="a1">View Details</button>
           <div class="details" id="a1">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Computed and analyzed energy spectra and information-theoretic measures (Shannon entropy, disequilibrium, statistical complexity) to study quantum behavior.</li>
@@ -361,7 +342,6 @@
         <article class="card reveal" data-target="a2">
           <h3>Lead Author – Published Review Article</h3>
           <div class="meta">Elsevier, May 2024 • DOI: 10.1016/j.ejphar.2024.176694</div>
-          <button class="btn" data-toggle="a2">View Details</button>
           <div class="details" id="a2">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Led a collaborative review titled <em>"Eicosanoid signaling in neuroinflammation associated with Alzheimer’s disease"</em> published in Elsevier.</li>
@@ -372,7 +352,6 @@
         <article class="card reveal" data-target="a3">
           <h3>Author – "It’s Your Life: Make it Happen"</h3>
           <div class="meta">Amazon, April 9, 2025</div>
-          <button class="btn" data-toggle="a3">View Details</button>
           <div class="details" id="a3">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Self-development guide inspiring readers to take charge of their lives and achieve goals.</li>
@@ -382,7 +361,6 @@
         <article class="card reveal" data-target="a4">
           <h3>Author – "Brainwaves of The Bold"</h3>
           <div class="meta">Amazon, May 19, 2025</div>
-          <button class="btn" data-toggle="a4">View Details</button>
           <div class="details" id="a4">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Transformative leadership book empowering readers to lead authentically and courageously.</li>
@@ -392,7 +370,6 @@
         <article class="card reveal" data-target="a5">
           <h3>Author – "Studies on Shell Confined Atoms"</h3>
           <div class="meta">LAMBERT Academic Publishing, June 12, 2025</div>
-          <button class="btn" data-toggle="a5">View Details</button>
           <div class="details" id="a5">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Explored quantum mechanical behavior of atoms under spatial confinement with relevance to nanoscience and high-pressure physics.</li>
@@ -402,7 +379,6 @@
         <article class="card reveal" data-target="a6">
           <h3>Highest Academic Performer</h3>
           <div class="meta">Years 4 & 5, University of Hyderabad</div>
-          <button class="btn" data-toggle="a6">View Details</button>
           <div class="details" id="a6">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Ranked 1st in Integrated Master’s in Chemical Sciences at University of Hyderabad for two consecutive years.</li>
@@ -413,7 +389,6 @@
         <article class="card reveal" data-target="a7">
           <h3>Competitive Exam Success</h3>
           <div class="meta">GATE 2025 & CSIR-NET-JRF 2025</div>
-          <button class="btn" data-toggle="a7">View Details</button>
           <div class="details" id="a7">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>GATE 2025 – AIR 727</li>
@@ -424,7 +399,6 @@
         <article class="card reveal" data-target="a8">
           <h3>Early Academic Excellence</h3>
           <div class="meta">School board exams, 2018</div>
-          <button class="btn" data-toggle="a8">View Details</button>
           <div class="details" id="a8">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Featured in school magazine for securing top position in 10th-grade board exams.</li>
@@ -442,7 +416,6 @@
         <article class="card reveal" data-target="c1">
           <h3>Machine Learning with Python</h3>
           <div class="meta">Issued by: Cognitive Class, 6th May, 2025</div>
-          <button class="btn" data-toggle="c1">View Details</button>
           <div class="details" id="c1">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Hands-on ML training covering theory & practical Python implementation.</li>
@@ -459,7 +432,6 @@
         <article class="card reveal" data-target="c2">
           <h3>Supervised Machine Learning</h3>
           <div class="meta">Issued by: Scaler, 20th May, 2025</div>
-          <button class="btn" data-toggle="c2">View Details</button>
           <div class="details" id="c2">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>Regression Models: Linear & Logistic Regression, L1/L2 Regularization.</li>
@@ -477,7 +449,6 @@
         <article class="card reveal" data-target="c3">
           <h3>Unsupervised Machine Learning</h3>
           <div class="meta">Issued by: Scaler, 15th May, 2025</div>
-          <button class="btn" data-toggle="c3">View Details</button>
           <div class="details" id="c3">
             <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
               <li>K-Means clustering: Objective function, K-Means++, failure case analysis.</li>
@@ -550,26 +521,6 @@
       el.addEventListener('pointerleave', ()=>{ el.style.transform=''; });
     }
     document.querySelectorAll('.card').forEach(addTilt);
-
-    /* ===== Smooth details toggles (auto height) ===== */
-    function toggleDetails(id, btn){
-      const box = document.getElementById(id);
-      const open = box.classList.contains('open');
-      if(!open){
-        box.style.maxHeight = '0px';
-        box.classList.add('open');
-        requestAnimationFrame(()=>{ box.style.maxHeight = box.scrollHeight + 'px'; });
-        btn.textContent = 'Hide details';
-      }else{
-        box.style.maxHeight = box.scrollHeight + 'px';
-        requestAnimationFrame(()=>{ box.style.maxHeight = '0px'; });
-        box.addEventListener('transitionend', ()=> box.classList.remove('open'), {once:true});
-        btn.textContent = 'View details';
-      }
-    }
-    document.querySelectorAll('[data-toggle]').forEach(btn=>{
-      btn.addEventListener('click', ()=> toggleDetails(btn.getAttribute('data-toggle'), btn));
-    });
 
     /* ===== Animate skill rings when visible ===== */
     const ringObserver = new IntersectionObserver((ents)=>{
