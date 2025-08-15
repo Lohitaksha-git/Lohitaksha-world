@@ -1,79 +1,144 @@
-/* ===== Starfield (two-layer parallax) ===== */
-const c1 = document.getElementById('starfield');
-const c2 = document.getElementById('starfield2');
-const ctx1 = c1.getContext('2d');
-const ctx2 = c2.getContext('2d');
-function resize(){ c1.width = c2.width = innerWidth; c1.height = c2.height = innerHeight; }
-addEventListener('resize', resize); resize();
+window.onload = function() {
+    // --- Starfield Animation ---
+    // This section creates a dynamic starfield background effect.
+    // We use two canvases to create a parallax effect for a sense of depth.
 
-function makeStars(n, speed){
-  const arr=[]; for(let i=0;i<n;i++){
-    arr.push({x:Math.random()*c1.width, y:Math.random()*c1.height, z:Math.random()*1, s:speed*(.5+Math.random()), r:Math.random()*1.4});
-  } return arr;
-}
-let layer1 = makeStars(220, .25); // slow far layer
-let layer2 = makeStars(120, .6);  // fast near layer
+    const starfield = document.getElementById('starfield');
+    const starfield2 = document.getElementById('starfield2');
+    const ctx1 = starfield.getContext('2d');
+    const ctx2 = starfield2.getContext('2d');
 
-function drawLayer(ctx, stars, drift){
-  ctx.clearRect(0,0,c1.width,c1.height);
-  for(const st of stars){
-    st.x += st.s*drift.x; st.y += st.s*drift.y;
-    if(st.x<0) st.x=c1.width; if(st.x>c1.width) st.x=0; if(st.y<0) st.y=c1.height; if(st.y>c1.height) st.y=0;
-    ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(255,255,255,${0.5+st.z*0.5})`; ctx.fill();
-  }
-}
-let drift={x:.2,y:.05};
-function loop(){ drawLayer(ctx1, layer1, drift); drawLayer(ctx2, layer2, {x:drift.x*1.6, y:drift.y*1.6}); requestAnimationFrame(loop); }
-loop();
+    // Store star data
+    let stars1 = [];
+    let stars2 = [];
+    let speed = 0.5;
 
-// subtle parallax on mouse move
-addEventListener('mousemove', e=>{
-  const cx = e.clientX/innerWidth - .5; const cy = e.clientY/innerHeight - .5;
-  drift = {x: .2 + cx*.3, y: .05 + cy*.2};
-});
+    // Adjust canvas size on window resize
+    function resizeCanvas() {
+        starfield.width = window.innerWidth;
+        starfield.height = window.innerHeight;
+        starfield2.width = window.innerWidth;
+        starfield2.height = window.innerHeight;
+    }
 
-/* ===== Reveal on scroll ===== */
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('visible'); io.unobserve(en.target);} });
-},{threshold:.2});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    // Initialize stars
+    function initStars(count, speedMultiplier) {
+        let stars = [];
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                size: Math.random() * 1.5 + 0.5,
+                speed: Math.random() * speedMultiplier + 0.1
+            });
+        }
+        return stars;
+    }
 
-/* ===== Magnetic tilt for cards ===== */
-function addTilt(el){
-  el.addEventListener('pointermove', e=>{
-    const b = el.getBoundingClientRect();
-    const px = (e.clientX - b.left)/b.width - .5; const py = (e.clientY - b.top)/b.height - .5;
-    el.style.transform = `perspective(800px) rotateX(${(-py*4).toFixed(2)}deg) rotateY(${(px*4).toFixed(2)}deg) translateY(-6px)`;
-  });
-  el.addEventListener('pointerleave', ()=>{ el.style.transform=''; });
-}
-document.querySelectorAll('.card').forEach(addTilt);
+    // Draw and move stars
+    function animateStars(ctx, starsArray, speedFactor) {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        starsArray.forEach(star => {
+            star.y += star.speed * speedFactor * speed;
+            if (star.y > window.innerHeight) {
+                star.y = 0;
+                star.x = Math.random() * window.innerWidth;
+            }
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
 
-/* ===== Smooth details toggles (auto height) ===== */
-function toggleDetails(id, btn){
-  const box = document.getElementById(id);
-  const open = box.classList.contains('open');
-  if(!open){
-    box.style.maxHeight = '0px';
-    box.classList.add('open');
-    requestAnimationFrame(()=>{ box.style.maxHeight = box.scrollHeight + 'px'; });
-    btn.textContent = 'Hide details';
-  }else{
-    box.style.maxHeight = box.scrollHeight + 'px';
-    requestAnimationFrame(()=>{ box.style.maxHeight = '0px'; });
-    box.addEventListener('transitionend', ()=> box.classList.remove('open'), {once:true});
-    btn.textContent = 'View details';
-  }
-}
-document.querySelectorAll('[data-toggle]').forEach(btn=>{
-  btn.addEventListener('click', ()=> toggleDetails(btn.getAttribute('data-toggle'), btn));
-});
+    function gameLoop() {
+        animateStars(ctx1, stars1, 1);
+        animateStars(ctx2, stars2, 2.5); // Second layer moves faster
+        requestAnimationFrame(gameLoop);
+    }
 
-/* ===== Animate skill rings when visible ===== */
-const ringObserver = new IntersectionObserver((ents)=>{
-  ents.forEach(en=>{
-    if(en.isIntersecting){
-      en.target.querySelectorAll('.progress').forEach(c=>{
-        const p = +c.dataset.p; const circ = 2*Math.PI*42; const off = circ*(1-p/100);
-        c.s
+    // Initialize on page load
+    resizeCanvas();
+    stars1 = initStars(200, 1);
+    stars2 = initStars(100, 1.5);
+    window.addEventListener('resize', resizeCanvas);
+    gameLoop();
+
+    // --- Scroll-based Reveal Effect ---
+    // This section adds a class to elements with the 'reveal' class when they enter the viewport.
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.2 // Trigger when 20% of the element is visible
+    });
+
+    document.querySelectorAll('.reveal').forEach(element => {
+        observer.observe(element);
+    });
+
+    // --- Dynamic Skill Rings ---
+    // This section calculates and animates the SVG skill rings.
+    const skillRings = document.querySelectorAll('.skill');
+
+    skillRings.forEach(skill => {
+        const ring = skill.querySelector('.ring .progress');
+        const percentage = parseInt(skill.dataset.percentage);
+        const radius = ring.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        ring.style.strokeDasharray = `${circumference} ${circumference}`;
+        ring.style.strokeDashoffset = circumference;
+
+        // Animate the ring on scroll
+        const ringObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                const offset = circumference - (percentage / 100) * circumference;
+                ring.style.strokeDashoffset = offset;
+                ringObserver.unobserve(skill); // Stop observing once animated
+            }
+        }, {
+            threshold: 0.7
+        });
+
+        ringObserver.observe(skill);
+    });
+    
+    // --- Collapsible Sections and Back-to-Top button ---
+    // This part handles the toggling of hidden content and the scroll-to-top button.
+    document.querySelectorAll('.btn[data-target]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = button.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.classList.toggle('open');
+                // You can add logic here to smoothly scroll to the target if needed
+            }
+        });
+    });
+
+    const toTopBtn = document.querySelector('.to-top');
+    if (toTopBtn) {
+        toTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+
+    // Show/hide back-to-top button based on scroll position
+    window.addEventListener('scroll', () => {
+        if (toTopBtn) {
+            if (window.scrollY > 300) {
+                toTopBtn.style.display = 'block';
+            } else {
+                toTopBtn.style.display = 'none';
+            }
+        }
+    });
+};
