@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lohitaksha Koppada — Digital Playground</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg1:#0b1020;
+    --bg2:#0a0e1a;
+    --glass:rgba(255,255,255,.06);
+    --stroke:rgba(255,255,255,.12);
+    --acc1:#76a8ff;
+    --acc2:#7c4dff;
+    --acc3:#00ffd5;
+    --text:#e9ecf5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Poppins',sans-serif; color:var(--text);
+    background: radial-gradient(1000px 600px at 70% -10%, #152045 0%, transparent 60%),
+                radial-gradient(800px 500px at 10% 10%, #111a3a 0%, transparent 60%),
+                linear-gradient(160deg,var(--bg1),var(--bg2));
+    overflow-x:hidden;
+  }
+  /* Starfield */
+  #starfield, #starfield2{
+    position:fixed; inset:0; z-index:-2; display:block; width:100%; height:100%;
+  }
+  /* Subtle vignette */
+  .vignette{position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background: radial-gradient(1200px 700px at 50% -10%, transparent 0%, rgba(0,0,0,.25) 70%),
+                radial-gradient(900px 600px at -10% 110%, transparent 0%, rgba(0,0,0,.25) 70%);
+  }
+  /* Hero */
+  header{
+    min-height:70vh; display:grid; place-items:center; text-align:center; padding:6rem 1.5rem 3rem;
+  }
+  .hero{max-width:1050px; margin:auto}
+  .title{
+    font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight:700; letter-spacing:.02em;
+    background: linear-gradient(90deg,var(--acc1),var(--acc2),var(--acc3));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 0 10px rgba(118,168,255,.25));
+  }
+  .subtitle{margin-top:1rem;opacity:.9;font-size:clamp(1rem,2.6vw,1.25rem)}
+  .scroll-indicator{margin-top:3rem; font-size:.9rem; opacity:.65; letter-spacing:.2em}
+
+  /* Sections */
+  section{padding:4.5rem 1.5rem}
+  .container{max-width:1200px;margin:0 auto}
+  .section-title{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:700;text-align:center;margin-bottom:2.2rem;position:relative}
+  .section-title::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-10px;width:120px;height:3px;background:linear-gradient(90deg,var(--acc1),var(--acc2),var(--acc3));border-radius:999px;filter:drop-shadow(0 0 8px rgba(124,77,255,.4))}
+
+  /* Grid cards */
+  .grid{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+  .card{
+    position:relative; background:var(--glass); border:1px solid var(--stroke); border-radius:18px; padding:1.4rem 1.4rem 1.2rem; overflow:hidden;
+    transition:transform .5s cubic-bezier(.2,.6,.2,1), box-shadow .5s; will-change:transform;
+  }
+  .card::before{content:""; position:absolute; inset:-2px; border-radius:20px; padding:2px; background:linear-gradient(120deg, transparent 35%, rgba(118,168,255,.35), rgba(124,77,255,.35), rgba(0,255,213,.35) 65%, transparent 80%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.25; pointer-events:none;}
+  .card:hover{transform:translateY(-6px) perspective(800px) rotateX(1.2deg) rotateY(-1.2deg); box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .card h3{font-size:1.1rem;margin-bottom:.25rem}
+  .meta{font-size:.9rem;opacity:.8;margin-bottom:.6rem}
+
+  /* Reveal effect */
+  .reveal{opacity:0; transform:translateY(28px) scale(.98); filter:blur(2px)}
+  .reveal.visible{opacity:1; transform:none; filter:none; transition:all 900ms cubic-bezier(.2,.7,.2,1)}
+
+  /* Toggle details with smooth height */
+  .details{max-height:0; overflow:hidden; opacity:.0; transition: max-height .65s ease, opacity .45s ease .1s}
+  .details.open{opacity:1}
+  .btn{
+    --shine: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+    display:inline-flex; align-items:center; gap:.5rem; font-weight:600; font-size:.9rem; letter-spacing:.02em;
+    padding:.55rem 1rem; border-radius:999px; border:1px solid var(--stroke); background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); color:var(--text);
+    position:relative; overflow:hidden; cursor:pointer; transition:transform .2s ease, border-color .2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.25)}
+  .btn::after{content:""; position:absolute; inset:0; background:var(--shine); transform:translateX(-120%); transition:transform .9s ease}
+  .btn:hover::after{transform:translateX(120%)}
+
+  /* Skill rings */
+  .skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
+  .skill{background:var(--glass);border:1px solid var(--stroke);border-radius:18px;padding:1.4rem;display:grid;grid-template-columns:96px 1fr;gap:1rem;align-items:center}
+  .ring{width:96px;height:96px;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .track{stroke:rgba(255,255,255,.12)}
+  .ring .progress{stroke:url(#grad); stroke-linecap:round; transition:stroke-dashoffset 1.2s ease}
+  .skill h4{margin-bottom:.25rem}
+  .skill p{opacity:.8;font-size:.95rem}
+
+  /* Achievements list */
+  .achievements{display:grid;gap:1rem}
+  .ach{background:var(--glass);border:1px solid var(--stroke);border-radius:14px;padding:1rem 1.2rem}
+  .ach h4{font-size:1rem;margin-bottom:.25rem}
+  .ach .sub{font-size:.9rem;opacity:.8}
+
+  /* Back-to-top */
+  .to-top{position:fixed;right:18px;bottom:18px;z-index:5}
+
+  /* No text selection highlight glow */
+  ::selection{background:rgba(124,77,255,.35)}
+</style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+  <canvas id="starfield2"></canvas>
+  <div class="vignette"></div>
+
+  <header>
+    <div class="hero reveal">
+      <h1 class="title">Lohitaksha Koppada</h1>
+      <p class="subtitle">A playful space for science, computation, and creative builds.</p>
+      <div class="scroll-indicator">SCROLL TO EXPLORE</div>
+    </div>
+  </header>
+
+  <section id="about" class="py-20 bg-gray-950 text-white relative overflow-hidden">
+  <!-- Starfield canvas (optional, animate with GSAP or Three.js) -->
+  <canvas id="starfield" class="absolute inset-0 z-0"></canvas>
+
+  <div class="container mx-auto px-6 max-w-5xl relative z-10">
+    <h2 class="text-4xl font-bold mb-8 text-center text-yellow-400">About Me</h2>
+
+    <p class="text-lg text-gray-300 leading-relaxed text-center max-w-4xl mx-auto">
+      Hey! I’m <span class="text-yellow-300 font-semibold">Lohitaksha</span> — a passionate advocate for 
+      <span class="text-yellow-300 font-semibold">personal growth, meaningful connection</span>, and 
+      the incredible potential within each of us. My mission is to inspire and empower individuals 
+      to embrace life fully and take intentional steps toward the futures they envision.
+    </p>
+
+    <div class="mt-10 space-y-8 text-gray-300">
+
+      <!-- FIARD -->
+      <div class="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition">
+        <p>
+          This mission first came to life through <span class="text-yellow-300 font-semibold">FIARD 
+          (Fostering Insight, Ambition, Resilience, and Development)</span>, 
+          the global coaching platform I founded to help professionals, entrepreneurs, 
+          and students worldwide strengthen leadership, resilience, and mindset. At FIARD, I created 
+          personalized growth programs blending evidence-based leadership strategies, 
+          neuroscience-backed mindset techniques, and practical goal systems — guiding clients to 
+          achieve lasting transformation and redefine what they believed possible.
+        </p>
+      </div>
+
+      <!-- Podcast -->
+      <div class="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition">
+        <p>
+          My work also thrives in <span class="text-yellow-300 font-semibold">Lohitaksha’s Den</span>, 
+          my podcast — a dynamic space where curiosity leads the way. Through thoughtful 
+          conversations with diverse guests, we explore leadership, personal development, 
+          philosophy, innovation, and everyday wisdom. Each episode sparks curiosity, 
+          invites reflection, and fosters a community where learning is celebrated.
+        </p>
+      </div>
+
+      <!-- Books -->
+      <div class="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold mb-3 text-yellow-300">Books</h3>
+        <ul class="list-disc list-inside space-y-2">
+          <li><strong>It’s Your Life: Make It Happen</strong> – A practical and encouraging guide for navigating life with purpose and clarity. (Amazon, April 9, 2025)</li>
+          <li><strong>Brainwaves of the Bold</strong> – A deep exploration of transformative leadership and inner courage that inspires authentic action. (Amazon, May 19, 2025)</li>
+          <li><strong>Studies on Shell Confined Atoms</strong> – An academic work on quantum mechanical behavior under spatial confinement, relevant to nanoscience and high-pressure physics. (LAMBERT Academic Publishing, June 12, 2025)</li>
+        </ul>
+      </div>
+
+      <!-- Publications -->
+      <div class="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold mb-3 text-yellow-300">Publications</h3>
+        <ul class="list-disc list-inside space-y-2">
+          <li><strong>Master’s Research Thesis</strong> – Investigated quantum confinement effects through energy spectra and information-theoretic measures, offering novel insights into nanoscale quantum systems.</li>
+          <li><strong>Lead Author</strong> – “Eicosanoid signaling in neuroinflammation associated with Alzheimer’s disease” (Elsevier, May 2024; DOI: 10.1016/j.ejphar.2024.176694), coordinating interdisciplinary research and contributing major writing sections.</li>
+        </ul>
+      </div>
+
+      <!-- Academic -->
+      <div class="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition">
+        <p>
+          My academic path has been equally rewarding — from leading peer-reviewed research to 
+          delivering engaging presentations that ignite “light bulb” moments. These experiences 
+          strengthened my belief in <span class="text-yellow-300 font-semibold">collaboration, perseverance, 
+          and the transformative power of communication</span>.
+        </p>
+      </div>
+
+    </div>
+
+    <p class="mt-10 text-lg text-gray-300 leading-relaxed text-center max-w-4xl mx-auto">
+      At my core, I believe in the beauty of growth, the strength of human connection, 
+      and the limitless possibilities that unfold when we dare to believe in ourselves. 
+      Whether through coaching, writing, podcasting, speaking, or everyday conversations, 
+      I’m committed to creating environments where authenticity, learning, and empowerment can thrive.
+    </p>
+  </div>
+</section>
+
+
+
+  
+
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title reveal">Research & Projects</h2>
+      <div class="grid">
+        <!-- Project 1 -->
+        <article class="card reveal" data-target="d1">
+          <h3>Master’s Project — Phase I</h3>
+          <div class="meta">Investigating Screened Coulomb Potentials & Confined Hydrogen Atom • Aug–Dec 2024 • 5 months • Guide: Prof. Kalidas Sen (UoH)</div>
+          <button class="btn" data-toggle="d1">View details</button>
+          <div class="details" id="d1">
+            <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
+              <li>Conducted an in-depth literature survey on the theoretical treatment of screened Coulomb potentials in multi‑electron systems and confined hydrogen atoms.</li>
+              <li>Explored potential models including Yukawa and Hulthén, assessing their impact on electronic structure under confinement.</li>
+              <li>Analyzed screening effects on energy spectra, wavefunctions, and chemical reactivity using advanced quantum approaches.</li>
+              <li>Reviewed recent developments in quantum chemistry with emphasis on potential approximations and computational techniques.</li>
+              <li>Executed theoretical and computational analyses to understand electron behavior in constrained environments.</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Project 2 -->
+        <article class="card reveal" data-target="d2">
+          <h3>Master’s Project — Phase II</h3>
+          <div class="meta">Plasma & Spatially Confined Hydrogen Atom • Dec 2024–Mar 2025 • 4 months • Guide: Prof. Kalidas Sen (UoH)</div>
+          <button class="btn" data-toggle="d2">View details</button>
+          <div class="details" id="d2">
+            <p style="margin:1rem 0 .5rem">Focus: theoretical and computational investigation of confined hydrogen subjected to screened Coulomb potentials, quantifying how confinement and environmental screening shape the electronic structure and information content.</p>
+            <ol style="margin-left:1.1rem; line-height:1.5">
+              <li><strong>Electronic structure analysis:</strong> energy levels under spatial confinement with screened potentials (Hulthén, Yukawa, Hulthén(2ℓ), Exponential‑Cosine).</li>
+              <li><strong>Information‑theoretic measures:</strong> computed Shannon entropy and disequilibrium; combined them to evaluate statistical complexity and characterize order vs. randomness.</li>
+              <li><strong>Data analysis & interpretation:</strong> visualization, parameter sweeps, and interpretation of screening‑parameter impacts on statistical complexity using Python, NumPy, and Pandas.</li>
+            </ol>
+            <p style="margin:.8rem 0 0"><strong>Skills developed:</strong> quantum‑mechanical modelling, numerical analysis, information theory for atomic systems, and data visualization pipelines.</p>
+          </div>
+        </article>
+        <!-- Project 3 -->
+        <article class="card reveal" data-target="d3">
+          <h3>Collaborative Summer Project — Eicosanoids & Bio‑signalling</h3>
+          <div class="meta">Apr–Aug 2021 • Guide: Prof. Reddanna Pallu (UoH)</div>
+          <button class="btn" data-toggle="d3">View details</button>
+          <div class="details" id="d3">
+            <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
+              <li>Mapped biochemical pathways of eicosanoids governing inflammation, immunity, and cellular communication.</li>
+              <li>Tracked dysregulated signalling cascades in neuroinflammation and neurodegenerative conditions.</li>
+              <li>Scoped therapeutic possibilities by linking lipid mediator dynamics to disease mechanisms.</li>
+              <li>Worked within an interdisciplinary team uniting lipid biochemistry and neuroscience.</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Project 4 -->
+        <article class="card reveal" data-target="d4">
+          <h3>Review Article — Eicosanoid Signalling in Neuroinflammation</h3>
+          <div class="meta">May 2022–Jan 2023 • Published: European Journal of Pharmacology (May 2024) • DOI: 10.1016/j.ejphar.2024.176694 • Guide: Prof. Reddanna Pallu</div>
+          <button class="btn" data-toggle="d4">View details</button>
+          <div class="details" id="d4">
+            <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
+              <li>Led the manuscript examining biochemical mechanisms and therapeutic potential of eicosanoid signalling in Alzheimer’s‑related neuroinflammation.</li>
+              <li>Coordinated interdisciplinary inputs, synthesizing evidence with rigorous review standards.</li>
+              <li>Managed an extended review cycle while balancing academic commitments; finalized for peer‑review publication.</li>
+            </ul>
+          </div>
+        </article>
+        <!-- Project 5 -->
+        <article class="card reveal" data-target="d5">
+          <h3>Summer Internship — Understanding Bio‑signalling Pathways</h3>
+          <div class="meta">May–Jul 2022 • Guide: Late Prof. Lakshmipati (Kakatiya University)</div>
+          <button class="btn" data-toggle="d5">View details</button>
+          <div class="details" id="d5">
+            <ul style="margin:1rem 0 0 1.1rem; line-height:1.5">
+              <li>Two‑month intensive study of molecular signalling mechanisms and cellular homeostasis.</li>
+              <li>Comprehensive literature analysis spanning immunity, inflammation, and stimulus response.</li>
+              <li>Discussions on emerging trends, with emphasis on therapeutic intervention pathways.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+ <section id="skills" class="py-16 bg-gray-900 text-white">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-bold mb-12 text-center text-yellow-400">💡 Skills & Expertise</h2>
+
+    <div class="grid gap-8 md:grid-cols-2">
+
+      <!-- 1. Python & Data Science -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-4">🐍 Python & Data Science</h3>
+        <ul class="space-y-2 text-gray-300">
+          <li>Proficient in <strong>Python programming</strong>, data structures, and program architecture.</li>
+          <li>Expert in <strong>NumPy, Pandas</strong> for data manipulation & analysis.</li>
+          <li>Advanced data visualization with <strong>Matplotlib, Seaborn</strong> for actionable insights.</li>
+          <li>Experience with <strong>scikit-learn, TensorFlow, Keras</strong> for ML & Deep Learning workflows.</li>
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-400 text-sm leading-relaxed">
+          Implemented regression (Linear, Logistic, Polynomial), classification (KNN, SVM, Naive Bayes), clustering (K-Means, DBSCAN, Hierarchical), and recommender systems. Skilled in model evaluation (MSE, RMSE, R², Precision, Recall, F1, ROC-AUC) and optimization (GridSearchCV, RandomizedSearchCV).
+        </div>
+      </div>
+
+      <!-- 2. Machine Learning Expertise -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-4">🤖 Machine Learning Expertise</h3>
+        <ul class="space-y-2 text-gray-300">
+          <li>Strong grasp of <strong>Supervised & Unsupervised Learning</strong> algorithms.</li>
+          <li>Built predictive models & optimized with <strong>cross-validation</strong> & hyperparameter tuning.</li>
+          <li>Proficient in <strong>Decision Trees, Random Forest, XGBoost, AdaBoost</strong>.</li>
+          <li>Hands-on with <strong>feature engineering</strong> & distance metrics for non-linear separability.</li>
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-400 text-sm leading-relaxed">
+          Applied ML to text, image, and structured data. Experience in kernel SVMs, probabilistic learning, ensemble models, clustering evaluation (Silhouette Score, Elbow Method), and real-world case analysis.
+        </div>
+      </div>
+
+      <!-- 3. Leadership & Communication -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-4">👑 Leadership & Communication</h3>
+        <ul class="space-y-2 text-gray-300">
+          <li>Led a team in publishing a <strong>peer-reviewed research article</strong> in Elsevier (2024).</li>
+          <li>Managed <strong>interdisciplinary collaboration</strong> with strict timelines & scientific accuracy.</li>
+          <li>Hosted & conducted interviews with <strong>global experts</strong> for a leadership podcast.</li>
+          <li>Built lasting <strong>professional networks</strong> & managed guest communications.</li>
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-400 text-sm leading-relaxed">
+          Leadership in research, project management, and communication. Skilled in developing interview frameworks, synthesizing expert opinions, and producing high-quality educational content.
+        </div>
+      </div>
+
+      <!-- 4. Research & Presentation Skills -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-4">📊 Research & Presentation</h3>
+        <ul class="space-y-2 text-gray-300">
+          <li>Presented Alzheimer’s disease research to <strong>Prof. George Perry</strong>, UT.</li>
+          <li>Developed novel <strong>Modified Langevin Equation</strong> for electrophoretic effects.</li>
+          <li>Skilled in <strong>scientific communication</strong> & high-level knowledge transfer.</li>
+          <li>Proposed <strong>innovative therapeutic strategies</strong> based on lipid signaling research.</li>
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-400 text-sm leading-relaxed">
+          Experience in global scientific discussions, hypothesis refinement, and technical presentations. Bridged deterministic and stochastic models in electrokinetic research.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleDetails(button) {
+      const details = button.nextElementSibling;
+      details.classList.toggle("hidden");
+      button.textContent = details.classList.contains("hidden") ? "View Details" : "Hide Details";
+    }
+  </script>
+</section>
+
+
+  <section id="achievements" class="py-16 bg-gray-900 text-white">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-bold mb-12 text-center text-yellow-400">🏅 Achievements</h2>
+
+    <div class="grid gap-8 md:grid-cols-2">
+
+      <!-- 1. Master's Research Thesis -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Master’s Research Thesis – Published</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Computed and analyzed energy spectra and information-theoretic measures (Shannon entropy, disequilibrium, statistical complexity) to study quantum behavior.</li>
+            <li>Provided novel insights into quantum confinement effects validated through theoretical & computational analysis.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2. Lead Author Review Article -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Lead Author – Published Review Article</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Led a collaborative review titled <em>"Eicosanoid signaling in neuroinflammation associated with Alzheimer’s disease"</em> published in Elsevier, May 2024 (DOI: 10.1016/j.ejphar.2024.176694).</li>
+            <li>Coordinated interdisciplinary contributions & significantly contributed to manuscript writing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. Author – It's Your Life: Make it Happen -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Author – "It’s Your Life: Make it Happen"</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Published on 9th April 2025 by Amazon.</li>
+            <li>Self-development guide inspiring readers to take charge of their lives and achieve goals.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 4. Author – Brainwaves of The Bold -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Author – "Brainwaves of The Bold"</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Published on 19th May 2025 by Amazon.</li>
+            <li>Transformative leadership book empowering readers to lead authentically and courageously.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 5. Author – Studies on Shell Confined Atoms -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Author – "Studies on Shell Confined Atoms"</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Published on 12th June 2025 by LAMBERT Academic Publishing.</li>
+            <li>Explored quantum mechanical behavior of atoms under spatial confinement with relevance to nanoscience and high-pressure physics.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 6. Highest Academic Performer -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Highest Academic Performer – Years 4 & 5</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Ranked 1st in Integrated Master’s in Chemical Sciences at University of Hyderabad for two consecutive years.</li>
+            <li>Ranked 2nd overall among combined Master's & Integrated Master's students in 5th year.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 7. GATE & CSIR-NET -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Competitive Exam Success</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>GATE 2025 – AIR 727</li>
+            <li>CSIR-NET-JRF 2025 – AIR 37 in Assistant Professor & Ph.D. admission category.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 8. Academic Achievements -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Early Academic Excellence</h3>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Featured in school magazine for securing top position in 10th-grade board exams, 2018.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleDetails(button) {
+      const details = button.nextElementSibling;
+      details.classList.toggle("hidden");
+      button.textContent = details.classList.contains("hidden") ? "View Details" : "Hide Details";
+    }
+  </script>
+</section>
+
+
+  <section id="certifications" class="py-16 bg-gray-900 text-white">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl font-bold mb-12 text-center text-yellow-400">🏆 Certifications</h2>
+
+    <div class="grid gap-8 md:grid-cols-2">
+
+      <!-- 1. Machine Learning with Python -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Machine Learning with Python</h3>
+        <p class="text-sm text-gray-400 mb-4">
+          <strong>Powered By:</strong> IBM Developer Skills Network<br>
+          <strong>Issued By:</strong> Cognitive Class<br>
+          <strong>Issued On:</strong> 6th May, 2025
+        </p>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Hands-on ML training covering theory & practical Python implementation.</li>
+            <li>Data analysis using <strong>Pandas</strong> & <strong>NumPy</strong>; visualization with <strong>Matplotlib</strong>.</li>
+            <li>Built ML models with <strong>scikit-learn</strong> including Linear, Logistic, Polynomial Regression, KNN, Decision Trees, SVM.</li>
+            <li>Applied unsupervised learning: K-Means, Hierarchical, DBSCAN.</li>
+            <li>Model evaluation with MSE, RMSE, R², Precision, Recall, F1, ROC-AUC.</li>
+            <li>Applied cross-validation & overfitting prevention techniques.</li>
+            <li>Developed basic recommender systems (content-based & collaborative filtering).</li>
+            <li>Completed a capstone project involving full ML pipeline execution.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2. Supervised Machine Learning -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Supervised Machine Learning</h3>
+        <p class="text-sm text-gray-400 mb-4">
+          <strong>Issued By:</strong> Scaler<br>
+          <strong>Issued On:</strong> 20th May, 2025
+        </p>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Regression Models: Linear & Logistic Regression, L1/L2 Regularization.</li>
+            <li>Instance-based learning: KNN, distance metrics (Euclidean, Manhattan, Cosine), kd-trees, LSH.</li>
+            <li>Probabilistic learning: Naive Bayes, Laplace Smoothing, Gaussian NB, text classification.</li>
+            <li>Margin-based models: SVM, Kernel Methods, Regression SVM.</li>
+            <li>Tree-based models: Decision Trees, Regression Trees, Information Gain methods.</li>
+            <li>Ensemble learning: Random Forest, AdaBoost, Gradient Boosting, XGBoost, Stacking.</li>
+            <li>Model evaluation: Cross-validation, hyperparameter tuning, bias-variance analysis.</li>
+            <li>Mathematics: Probability, Statistics, KL Divergence, Objective Functions.</li>
+            <li>Tools: Python, NumPy, Pandas, Scikit-learn, GridSearchCV, RandomSearchCV.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. Unsupervised Machine Learning -->
+      <div class="bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-2xl transition">
+        <h3 class="text-2xl font-semibold text-yellow-300 mb-2">Unsupervised Machine Learning</h3>
+        <p class="text-sm text-gray-400 mb-4">
+          <strong>Issued By:</strong> Scaler<br>
+          <strong>Issued On:</strong> 15th May, 2025
+        </p>
+        <button class="px-4 py-2 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-500 transition" onclick="toggleDetails(this)">
+          View Details
+        </button>
+        <div class="hidden mt-4 text-gray-300 text-sm leading-relaxed">
+          <ul class="list-disc list-inside space-y-1">
+            <li>K-Means clustering: Objective function, K-Means++, failure case analysis.</li>
+            <li>K-Medoids clustering: Robustness to outliers.</li>
+            <li>DBSCAN: Core/border/noise point detection, MinPts & Eps tuning, spatial dataset applications.</li>
+            <li>Hierarchical clustering: Agglomerative & divisive methods, dendrogram analysis.</li>
+            <li>Proximity methods: Single, complete, average linkage; complexity trade-offs.</li>
+            <li>Clustering evaluation: Silhouette Score, Elbow Method, Inertia diagnostics.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggleDetails(button) {
+      const details = button.nextElementSibling;
+      details.classList.toggle("hidden");
+      button.textContent = details.classList.contains("hidden") ? "View Details" : "Hide Details";
+    }
+  </script>
+</section>
+
+
+  <div class="to-top">
+    <button class="btn" id="toTop">Back to top</button>
+  </div>
+
+  <script>
+    /* ===== Starfield (two‑layer parallax) ===== */
+    const c1 = document.getElementById('starfield');
+    const c2 = document.getElementById('starfield2');
+    const ctx1 = c1.getContext('2d');
+    const ctx2 = c2.getContext('2d');
+    function resize(){ c1.width = c2.width = innerWidth; c1.height = c2.height = innerHeight; }
+    addEventListener('resize', resize); resize();
+
+    function makeStars(n, speed){
+      const arr=[]; for(let i=0;i<n;i++){
+        arr.push({x:Math.random()*c1.width, y:Math.random()*c1.height, z:Math.random()*1, s:speed*(.5+Math.random()), r:Math.random()*1.4});
+      } return arr;
+    }
+    let layer1 = makeStars(220, .25); // slow far layer
+    let layer2 = makeStars(120, .6);  // fast near layer
+
+    function drawLayer(ctx, stars, drift){
+      ctx.clearRect(0,0,c1.width,c1.height);
+      for(const st of stars){
+        st.x += st.s*drift.x; st.y += st.s*drift.y;
+        if(st.x<0) st.x=c1.width; if(st.x>c1.width) st.x=0; if(st.y<0) st.y=c1.height; if(st.y>c1.height) st.y=0;
+        ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${0.5+st.z*0.5})`; ctx.fill();
+      }
+    }
+    let drift={x:.2,y:.05};
+    function loop(){ drawLayer(ctx1, layer1, drift); drawLayer(ctx2, layer2, {x:drift.x*1.6, y:drift.y*1.6}); requestAnimationFrame(loop); }
+    loop();
+
+    // subtle parallax on mouse move
+    addEventListener('mousemove', e=>{
+      const cx = e.clientX/innerWidth - .5; const cy = e.clientY/innerHeight - .5;
+      drift = {x: .2 + cx*.3, y: .05 + cy*.2};
+    });
+
+    /* ===== Reveal on scroll ===== */
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('visible'); io.unobserve(en.target);} });
+    },{threshold:.2});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    /* ===== Magnetic tilt for cards ===== */
+    function addTilt(el){
+      el.addEventListener('pointermove', e=>{
+        const b = el.getBoundingClientRect();
+        const px = (e.clientX - b.left)/b.width - .5; const py = (e.clientY - b.top)/b.height - .5;
+        el.style.transform = `perspective(800px) rotateX(${(-py*4).toFixed(2)}deg) rotateY(${(px*4).toFixed(2)}deg) translateY(-6px)`;
+      });
+      el.addEventListener('pointerleave', ()=>{ el.style.transform=''; });
+    }
+    document.querySelectorAll('.card').forEach(addTilt);
+
+    /* ===== Smooth details toggles (auto height) ===== */
+    function toggleDetails(id, btn){
+      const box = document.getElementById(id);
+      const open = box.classList.contains('open');
+      if(!open){
+        box.style.maxHeight = '0px';
+        box.classList.add('open');
+        requestAnimationFrame(()=>{ box.style.maxHeight = box.scrollHeight + 'px'; });
+        btn.textContent = 'Hide details';
+      }else{
+        box.style.maxHeight = box.scrollHeight + 'px';
+        requestAnimationFrame(()=>{ box.style.maxHeight = '0px'; });
+        box.addEventListener('transitionend', ()=> box.classList.remove('open'), {once:true});
+        btn.textContent = 'View details';
+      }
+    }
+    document.querySelectorAll('[data-toggle]').forEach(btn=>{
+      btn.addEventListener('click', ()=> toggleDetails(btn.getAttribute('data-toggle'), btn));
+    });
+
+    /* ===== Animate skill rings when visible ===== */
+    const ringObserver = new IntersectionObserver((ents)=>{
+      ents.forEach(en=>{
+        if(en.isIntersecting){
+          en.target.querySelectorAll('.progress').forEach(c=>{
+            const p = +c.dataset.p; const circ = 2*Math.PI*42; const off = circ*(1-p/100);
+            c.style.strokeDasharray = circ.toFixed(0);
+            c.style.strokeDashoffset = circ.toFixed(0);
+            requestAnimationFrame(()=>{ c.style.strokeDashoffset = off; });
+          });
+          ringObserver.unobserve(en.target);
+        }
+      })
+    },{threshold:.5});
+    document.querySelectorAll('.skill').forEach(el=> ringObserver.observe(el));
+
+    /* ===== Back to top ===== */
+    document.getElementById('toTop').addEventListener('click', ()=> scrollTo({top:0, behavior:'smooth'}));
+  </script>
+</body>
+</html>
